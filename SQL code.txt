@@ -1,0 +1,59 @@
+/*Query 1- What is the country who buy the most?*/
+SELECT
+  COUNT(i.billingcountry) AS Purchase,
+  i.billingcountry
+FROM invoice i
+JOIN invoiceline v
+  ON i.invoiceid = v.invoiceid
+JOIN track t
+  ON t.trackid = v.trackid
+GROUP BY i.billingcountry
+ORDER BY Purchase DESC;
+
+
+
+/*Query 2-Who is writing the Metal music?*/
+SELECT
+  a.artistid,
+  a.name,
+  COUNT(t.trackid) songs
+FROM artist a
+JOIN album m
+  ON a.artistid = m.artistid
+JOIN track t
+  ON t.albumid = m.albumid
+JOIN genre g
+  ON t.genreid = g.genreid
+WHERE g.name = 'Metal'
+GROUP BY a.artistid,
+         a.name
+ORDER BY songs DESC;
+
+/*Query 3-Media type spread situation?*/
+SELECT
+  COUNT(t.trackid),
+  m.name
+FROM mediatype m
+JOIN track t
+  ON m.mediatypeid = t.mediatypeid
+GROUP BY 2;
+
+/*Query 4-Which composer is popular?*/
+SELECT
+  a.name,
+  SUM(i.unitprice * i.quantity) AS Amount_spent,
+  CASE
+    WHEN SUM(i.unitprice * i.quantity) > 80 THEN 'top'
+    WHEN SUM(i.unitprice * i.quantity) > 40 AND
+      SUM(i.unitprice * i.quantity) < 80 THEN 'middle'
+    ELSE 'low'
+  END AS Album_popularity_level
+FROM artist a
+JOIN album m
+  ON a.artistid = m.artistid
+JOIN track t
+  ON m.albumid = t.albumid
+JOIN InvoiceLine i
+  ON t.trackid = i.trackid
+GROUP BY a.name
+ORDER BY Amount_spent DESC;
